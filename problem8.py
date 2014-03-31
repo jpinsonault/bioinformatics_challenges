@@ -8,8 +8,8 @@ from itertools import permutations
 
 from utils import *
 
-genome = "CACGTACAACACGTCGTCACGTCGTCGTCGTCACACACAACACGTACATTACATTCACGTCACGTTTTTCATTCACACGTTTCACATTCATTCACGTTTACATTTTTTTTACATTTTCACGTCAACATTCACGTACATTTTCACACATTCAACACGTTTCACGTCACACACGTCATTCACAACATTCATTCGTCAACACATTCGTACACGTCACACACACGTACACACAACACACGTCACACA"
-k = 9
+genome = "GCGCTCTCGTGTCGGCTCCGCGGCTCTCGTTCGCGCGCGCGCGTTCTCGTGCGTCGTCCGTCCGTCGTCGCGTCCGTCGTGTTCTCTCGCGCTCGTGTTCTCTCGTTCCGGTTCGTTCCGTCGTGTTCGCGCTCGCGCGTCGGCTCGTTCTCCGTCTCTCTCTCGTGTGCGCTCTCGTCGTCTCTCTCGCCGTCCGGTGCTCGCTCGCGTCGTCTCTCTCGT"
+k = 8
 d = 2
 
 def main():
@@ -49,9 +49,9 @@ def main():
                     if miss_count <= d:
                         fuzzy_kmers[permutation] += 1
 
-                    if reverse_not_equal:
-                        if reversed_miss_count <= d:
-                            fuzzy_kmers[permutation] += 1
+                    # if reverse_not_equal:
+                    if reversed_miss_count <= d:
+                        fuzzy_kmers[permutation] += 1
 
 
     sorted_kmers = sorted(fuzzy_kmers.iteritems(), key=operator.itemgetter(1))
