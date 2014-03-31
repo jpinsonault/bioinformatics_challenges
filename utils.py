@@ -14,9 +14,49 @@ def find_kmers(k, genome):
     return positions
 
 
+def find_min_skew(genome):
+    skew_map = {
+        "C": -1,
+        "G": 1,
+        "A": 0,
+        "T": 0
+    }
+
+    skew_array = [0]
+
+    for x, letter in enumerate(genome):
+        skew_array.append(skew_map[letter] + skew_array[x])
+
+    minimum = 0
+    min_array = []
+    for x, skew in enumerate(skew_array):
+        if skew == minimum:
+            min_array.append(x)
+        elif skew < minimum:
+            minimum = skew
+            min_array = [x]
+
+    return min_array
+
+
 def read_file(filename):
-    with open(filename) as o_file:
-        return o_file.readlines()[0].strip()
+    with open(filename) as in_file:
+        return in_file.readlines()[0].strip()
+
+
+def read_fasta(filename):
+    genome = ""
+
+    print("Reading {}".format(filename))
+
+    with open(filename) as in_file:
+        for line in in_file:
+            if line.startswith(">"):
+                continue
+
+            genome += line.strip()
+
+    return genome
 
 
 def hamming_distance(s1, s2):
