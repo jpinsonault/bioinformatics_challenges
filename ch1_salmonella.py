@@ -5,27 +5,55 @@ import pickle
 import operator
 from itertools import permutations
 from time import time
+from timeit import timeit
 import sys
 
 from utils import *
 
 genome = "GCGCTCTCGTGTCGGCTCCGCGGCTCTCGTTCGCGCGCGCGCGTTCTCGTGCGTCGTCCGTCCGTCGTCGCGTCCGTCGTGTTCTCTCGCGCTCGTGTTCTCTCGTTCCGGTTCGTTCCGTCGTGTTCGCGCTCGCGCGTCGGCTCGTTCTCCGTCTCTCTCTCGTGTGCGCTCTCGTCGTCTCTCTCGCCGTCCGGTGCTCGCTCGCGTCGTCTCTCTCGT"
 k = 10
-d = 1
+d = 2
 
 
 def main():
-    # genome = read_fasta("Salmonella_enterica.fasta")
-    kmers = find_kmers(k, genome)
-    fuzzy_kmers = defaultdict(int)
-    num_kmers = len(kmers)
+    genome = read_fasta("Salmonella_enterica.fasta")
 
-    window = 200
+    counts = defaultdict(int)
 
+    window = 3000
     min_index = find_min_skew(genome)[0]
 
     genome_window = genome[min_index - 20:min_index + window]
-    last_time = time()
+
+    kmers = find_kmers(k, genome_window)
+    num_kmers = len(genome_window) - k + 1
+    
+    with progress_bar(num_kmers, "Searching") as progress:
+
+        for index in range(num_kmers):
+            word = genome[index:index + k]
+            progress.update(index)
+
+            permuted_strings = mutations_with_reverse(word, d)
+
+            for permutation in permuted_strings:
+                counts[permutation] += 1
+
+    sorted_kmers = sorted(counts.iteritems(), key=lambda x: x[1])
+    pprint(sorted_kmers[-10:])
+
+
+def old_algorithm():
+    genome = read_fasta("Salmonella_enterica.fasta")
+    fuzzy_kmers = defaultdict(int)
+
+    window = 500
+    min_index = find_min_skew(genome)[0]
+
+    genome_window = genome[min_index - 20:min_index + window]
+
+    kmers = find_kmers(k, genome_window)
+    num_kmers = len(kmers) - k + 1
 
     with progress_bar(num_kmers, "Searching") as progress:
         for count, search_string in enumerate(kmers.keys()):
@@ -66,6 +94,6 @@ def main():
     sorted_kmers = sorted(fuzzy_kmers.iteritems(), key=operator.itemgetter(1))
     pprint(sorted_kmers[-10:])
 
-
 if __name__ == '__main__':
-    main()
+    print("First: {:.2f} seconds".format(timeit(main, number=1)))
+    print("Second: {:.2f} seconds".format(timeit(old_algorithm, number=1)))

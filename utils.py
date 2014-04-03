@@ -8,6 +8,8 @@ from contextlib import contextmanager
 from progressbar import Percentage
 from progressbar import Bar
 from progressbar import ProgressBar
+from progressbar import ETA
+from progressbar import Timer
 
 codon_table_rna = {
     "AAA": "K", "AAC": "N", "AAG": "K", "AAU": "N",
@@ -50,7 +52,7 @@ codon_table = {
 def find_kmers(k, genome):
     positions = defaultdict(list)
 
-    for index in range(len(genome) - k):
+    for index in range(len(genome) - k + 1):
         word = genome[index:index + k]
         positions[word].append(index)
 
@@ -110,12 +112,46 @@ def hamming_distance(s1, s2):
 
 
 def mutations(word, hamming_distance, charset='ATCG'):
+    seen = set()
     for indices in itertools.combinations(range(len(word)), hamming_distance):
         for replacements in itertools.product(charset, repeat=hamming_distance):
             mutation = list(word)
             for index, replacement in zip(indices, replacements):
                 mutation[index] = replacement
-            yield "".join(mutation)
+
+            mutation_string = "".join(mutation)
+            if mutation_string not in seen:
+                yield mutation_string
+                seen.add(mutation_string)
+
+
+def mutations_with_reverse(word, hamming_distance, charset='ATCG'):
+    seen = set()
+    reversed_word = reverse_compliment(word)
+
+    for indices in itertools.combinations(range(len(word)), hamming_distance):
+        for replacements in itertools.product(charset, repeat=hamming_distance):
+            mutation = list(word)
+            for index, replacement in zip(indices, replacements):
+                mutation[index] = replacement
+
+            mutation_string = "".join(mutation)
+            if mutation_string not in seen:
+                yield mutation_string
+                seen.add(mutation_string)
+
+    seen = set()
+
+    for indices in itertools.combinations(range(len(reversed_word)), hamming_distance):
+        for replacements in itertools.product(charset, repeat=hamming_distance):
+            mutation = list(reversed_word)
+            for index, replacement in zip(indices, replacements):
+                mutation[index] = replacement
+
+            mutation_string = "".join(mutation)
+            if mutation_string not in seen:
+                yield mutation_string
+                seen.add(mutation_string)
 
 
 def reverse_compliment(string):
@@ -142,7 +178,7 @@ def reverse_compliment_rna(string):
 
 @contextmanager
 def progress_bar(max_number, title=""):
-    progress_bar = ProgressBar(widgets=[title + ": " , Percentage(), Bar()], maxval=max_number).start()
+    progress_bar = ProgressBar(widgets=[title + ": " , Percentage(), Bar(), " ", Timer(), " ", ETA()], maxval=max_number).start()
     yield progress_bar
 
     progress_bar.finish()

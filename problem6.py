@@ -7,20 +7,27 @@ from utils import *
 
 genome = "AACAAGCTGATAAACATTTAAAGAG"
 search_string = "AAAAA"
-d = 2
-
-skew_map = {
-    "C": -1,
-    "G": 1,
-    "A": 0,
-    "T": 0
-}
+d = 1
 
 
 def main():
+    matches = set()
     positions = []
 
     search_len = len(search_string)
+
+    kmers = find_kmers(search_len, genome)
+
+    permutations = list(mutations(search_string, d))
+
+    # with progress_bar(len(permutations)) as progress:
+    #     for count, permutation in enumerate(permutations):
+    #         progress.update(count)
+    #         for position in kmers[permutation]:
+    #             matches.add(position)
+
+    # print(matches)
+
 
     for index in range(len(genome) - search_len + 1):
         word = genome[index:index + search_len]
@@ -32,7 +39,7 @@ def main():
         if miss_count <= d:
             positions.append(index)
 
-    print(" ".join([str(position) for position in positions]))
+    # print(" ".join(sorted([str(position) for position in positions])))
     print(len(positions))
 
 
