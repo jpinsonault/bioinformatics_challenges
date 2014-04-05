@@ -11,8 +11,8 @@ import sys
 from utils import *
 
 genome = "GCGCTCTCGTGTCGGCTCCGCGGCTCTCGTTCGCGCGCGCGCGTTCTCGTGCGTCGTCCGTCCGTCGTCGCGTCCGTCGTGTTCTCTCGCGCTCGTGTTCTCTCGTTCCGGTTCGTTCCGTCGTGTTCGCGCTCGCGCGTCGGCTCGTTCTCCGTCTCTCTCTCGTGTGCGCTCTCGTCGTCTCTCTCGCCGTCCGGTGCTCGCTCGCGTCGTCTCTCTCGT"
-k = 10
-d = 2
+k = 6
+d = 4
 
 
 def main():
@@ -96,4 +96,4 @@ def old_algorithm():
 
 if __name__ == '__main__':
     print("First: {:.2f} seconds".format(timeit(main, number=1)))
-    print("Second: {:.2f} seconds".format(timeit(old_algorithm, number=1)))
+    # print("Second: {:.2f} seconds".format(timeit(old_algorithm, number=1)))

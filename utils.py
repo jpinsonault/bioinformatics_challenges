@@ -1,3 +1,5 @@
+import collections
+import functools
 from collections import defaultdict
 from pprint import pprint
 import re
@@ -24,9 +26,9 @@ codon_table_rna = {
     "GCA": "A", "GCC": "A", "GCG": "A", "GCU": "A",
     "GGA": "G", "GGC": "G", "GGG": "G", "GGU": "G",
     "GUA": "V", "GUC": "V", "GUG": "V", "GUU": "V",
-    "UAA": "",  "UAC": "Y", "UAG": "",  "UAU": "Y",
+    "UAA": "#", "UAC": "Y", "UAG": "#", "UAU": "Y",
     "UCA": "S", "UCC": "S", "UCG": "S", "UCU": "S",
-    "UGA": "",  "UGC": "C", "UGG": "W", "UGU": "C",
+    "UGA": "#", "UGC": "C", "UGG": "W", "UGU": "C",
     "UUA": "L", "UUC": "F", "UUG": "L", "UUU": "F",
 }
 
@@ -43,11 +45,39 @@ codon_table = {
     "GCA": "A", "GCC": "A", "GCG": "A", "GCT": "A",
     "GGA": "G", "GGC": "G", "GGG": "G", "GGT": "G",
     "GTA": "V", "GTC": "V", "GTG": "V", "GTT": "V",
-    "TAA": "",  "TAC": "Y", "TAG": "",  "TAT": "Y",
+    "TAA": "#", "TAC": "Y", "TAG": "#", "TAT": "Y",
     "TCA": "S", "TCC": "S", "TCG": "S", "TCT": "S",
-    "TGA": "",  "TGC": "C", "TGG": "W", "TGT": "C",
+    "TGA": "#", "TGC": "C", "TGG": "W", "TGT": "C",
     "TTA": "L", "TTC": "F", "TTG": "L", "TTT": "F",
 }
+
+
+class memoized(object):
+    '''Decorator. Caches a function's return value each time it is called.
+    If called later with the same arguments, the cached value is returned
+    (not reevaluated).
+    '''
+    def __init__(self, func):
+        self.func = func
+        self.cache = {}
+    def __call__(self, *args):
+        if not isinstance(args, collections.Hashable):
+            # uncacheable. a list, for instance.
+            # better to not cache than blow up.
+            return self.func(*args)
+        if args in self.cache:
+            return self.cache[args]
+        else:
+            value = self.func(*args)
+            self.cache[args] = value
+            return value
+    def __repr__(self):
+        '''Return the function's docstring.'''
+        return self.func.__doc__
+    def __get__(self, obj, objtype):
+        '''Support instance methods.'''
+        return functools.partial(self.__call__, obj)
+
 
 def find_kmers(k, genome):
     positions = defaultdict(list)
@@ -111,6 +141,7 @@ def hamming_distance(s1, s2):
     return sum(ch1 != ch2 for ch1, ch2 in zip(s1, s2))
 
 
+@memoized
 def mutations(word, hamming_distance, charset='ATCG'):
     seen = set()
     for indices in itertools.combinations(range(len(word)), hamming_distance):
@@ -125,6 +156,7 @@ def mutations(word, hamming_distance, charset='ATCG'):
                 seen.add(mutation_string)
 
 
+@memoized
 def mutations_with_reverse(word, hamming_distance, charset='ATCG'):
     seen = set()
     reversed_word = reverse_compliment(word)
@@ -207,17 +239,18 @@ def count_rna_in_codons(codon_string):
         count *= counts[letter]
     print(count)
 
-
-def rna_encodes_peptide(dna_string, peptide_string):
+# @memoized
+def rna_encodes_peptide(dna_string, peptide_string, cache):
     if len(dna_string) % 3 != 0:
+        # cache[dna_string] = False
         return False
 
     encodings = [codon_table[dna_string[i:i + 3]] for i in xrange(0, len(dna_string), 3)]
 
-    print(dna_string, "".join(encodings))
     for encoding, peptide in izip(encodings, peptide_string):
-
         if encoding != peptide:
+            # cache[dna_string] = False
             return False
 
+    # cache[dna_string] = True
     return True
