@@ -25,8 +25,6 @@ def main():
 
     len_peptide = len(peptide_string)
 
-    rna_cache = {}
-
     word_size = len_peptide * 3
     with progress_bar(len(rna_string)) as progress:
         for i in xrange(0, len(rna_string) - word_size + 1):
@@ -34,10 +32,10 @@ def main():
             rna_substring = rna_string[i:i + word_size]
             reverse_rna_substring = reverse_rna_string[i:i + word_size]
 
-            if rna_encodes_peptide(rna_substring, peptide_string, rna_cache):
+            if rna_encodes_peptide(rna_substring, peptide_string):
                 rna_encoders.append(rna_substring)
 
-            if rna_encodes_peptide(reverse_rna_substring, peptide_string, rna_cache):
+            if rna_encodes_peptide(reverse_rna_substring, peptide_string):
                 rna_encoders.append(rna_substring)
 
     pprint(rna_encoders)
