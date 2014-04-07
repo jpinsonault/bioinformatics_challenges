@@ -239,18 +239,15 @@ def count_rna_in_codons(codon_string):
         count *= counts[letter]
     print(count)
 
-# @memoized
-def rna_encodes_peptide(dna_string, peptide_string, cache):
-    if len(dna_string) % 3 != 0:
-        # cache[dna_string] = False
-        return False
+
+def rna_encodes_peptide(dna_string, peptide_string):
+    # if len(dna_string) % 3 != 0:
+    #     return False
 
     encodings = [codon_table[dna_string[i:i + 3]] for i in xrange(0, len(dna_string), 3)]
 
     for encoding, peptide in izip(encodings, peptide_string):
         if encoding != peptide:
-            # cache[dna_string] = False
             return False
 
-    # cache[dna_string] = True
     return True
