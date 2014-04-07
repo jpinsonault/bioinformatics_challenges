@@ -254,3 +254,7 @@ def rna_encodes_peptide(dna_string, peptide_string, cache):
 
     # cache[dna_string] = True
     return True
+
+
+def num_sub_peptides(n):
+    return n * (n - 1)

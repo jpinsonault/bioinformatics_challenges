@@ -11,8 +11,8 @@ import sys
 from utils import *
 
 genome = "GCGCTCTCGTGTCGGCTCCGCGGCTCTCGTTCGCGCGCGCGCGTTCTCGTGCGTCGTCCGTCCGTCGTCGCGTCCGTCGTGTTCTCTCGCGCTCGTGTTCTCTCGTTCCGGTTCGTTCCGTCGTGTTCGCGCTCGCGCGTCGGCTCGTTCTCCGTCTCTCTCTCGTGTGCGCTCTCGTCGTCTCTCTCGCCGTCCGGTGCTCGCTCGCGTCGTCTCTCTCGT"
-k = 6
-d = 4
+k = 9
+d = 2
 
 
 def main():
@@ -20,10 +20,12 @@ def main():
 
     counts = defaultdict(int)
 
-    window = 3000
+    window = 1000
     min_index = find_min_skew(genome)[0]
 
-    genome_window = genome[min_index - 20:min_index + window]
+    print("Found min skew at {}".format(min_index))
+
+    genome_window = genome[min_index - window/2:min_index + window/2]
 
     kmers = find_kmers(k, genome_window)
     num_kmers = len(genome_window) - k + 1
