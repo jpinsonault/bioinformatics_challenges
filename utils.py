@@ -1,3 +1,4 @@
+from collections import deque
 import collections
 import functools
 from collections import defaultdict
@@ -5,6 +6,7 @@ from pprint import pprint
 import re
 import itertools
 from itertools import izip
+from itertools import islice
 from contextlib import contextmanager
 
 from progressbar import Percentage
@@ -49,6 +51,28 @@ codon_table = {
     "TCA": "S", "TCC": "S", "TCG": "S", "TCT": "S",
     "TGA": "#", "TGC": "C", "TGG": "W", "TGT": "C",
     "TTA": "L", "TTC": "F", "TTG": "L", "TTT": "F",
+}
+
+
+weight_map = {
+    "G": 57,  "A": 71,  "S": 87,  "P": 97,
+    "V": 99,  "T": 101, "C": 103, "I": 113,
+    "L": 113, "N": 114, "D": 115, "K": 128,
+    "Q": 128, "E": 129, "M": 131, "H": 137,
+    "F": 147, "R": 156, "Y": 163, "W": 186
+}
+
+reverse_weight_map = {
+    57:  ['G'],      71:  ['A'],
+    87:  ['S'],      97:  ['P'],
+    99:  ['V'],      101: ['T'],
+    103: ['C'],      113: ['I', 'L'],
+    114: ['N'],      115: ['D'],
+    128: ['K', 'Q'], 129: ['E'],
+    131: ['M'],      137: ['H'],
+    147: ['F'],      156: ['R'],
+    163: ['Y'],      186: ['W'],
+    0:   []
 }
 
 
@@ -253,5 +277,39 @@ def rna_encodes_peptide(dna_string, peptide_string):
     return True
 
 
+###########################################
+# 2.4
+###########################################
+
 def num_sub_peptides(n):
     return n * (n - 1)
+
+
+def peptide_permutations(peptide_string):
+    """Returns a list of the cyclic permutations of the peptide_string"""
+    length = len(peptide_string)
+    peptide_deque = deque(peptide_string)
+    for size in xrange(1, length):
+        for _ in xrange(length):
+            yield islice(peptide_deque, 0, size)
+            peptide_deque.rotate(1)
+
+
+def peptide_weights(peptide_string):
+    yield 0
+
+    for substring in peptide_permutations(peptide_string):
+        yield sum([weight_map[peptide] for peptide in substring])
+
+    # Total weight
+    yield sum([weight_map[peptide] for peptide in peptide_string])
+
+
+@memoized
+def count_peptides_with_weight(goal_weight, current_weight=0):
+    if (goal_weight < 0):
+        return 0
+    elif(goal_weight == 0):
+        return len(reverse_weight_map[current_weight])
+    else:
+        return sum([count_peptides_with_weight(goal_weight - weight, weight) for weight in weight_map.values()])
