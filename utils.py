@@ -62,6 +62,15 @@ weight_map = {
     "F": 147, "R": 156, "Y": 163, "W": 186
 }
 
+compressed_weight_map = {
+    "G": 57,  "A": 71,  "S": 87,  "P": 97,
+    "V": 99,  "T": 101, "C": 103, 
+    "IL": 113, "N": 114, "D": 115, "KQ": 128,
+    "E": 129, "M": 131, "H": 137,
+    "F": 147, "R": 156, "Y": 163, "W": 186
+}
+
+
 reverse_weight_map = {
     57:  ['G'],      71:  ['A'],
     87:  ['S'],      97:  ['P'],
@@ -306,10 +315,10 @@ def peptide_weights(peptide_string):
 
 
 @memoized
-def count_peptides_with_weight(goal_weight, current_weight=0):
+def count_peptides_with_weight(goal_weight):
     if (goal_weight < 0):
         return 0
     elif(goal_weight == 0):
-        return len(reverse_weight_map[current_weight])
+        return 1
     else:
-        return sum([count_peptides_with_weight(goal_weight - weight, weight) for weight in weight_map.values()])
+        return sum([count_peptides_with_weight(goal_weight - weight) for weight in compressed_weight_map.values()])

@@ -17,7 +17,7 @@ peptide_string = tyrocidine
 def main():
     # pprint(peptide_weights(peptide_string))
 
-    print(count_peptides_with_weight(1024))
+    print(count_peptides_with_weight(1475))
 
 
 if __name__ == '__main__':
