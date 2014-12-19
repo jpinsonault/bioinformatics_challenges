@@ -1,7 +1,7 @@
 (ns bioclojure.core
   (:gen-class))
 (def problem-ns *ns*)
-(load "p26")
+(load "ch1")
 (load "utils")
 
 (defn get-function [arg-string]
